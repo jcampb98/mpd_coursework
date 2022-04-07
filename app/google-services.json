@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "297220886928",
+    "project_id": "nimble-mode-333208",
+    "storage_bucket": "nimble-mode-333208.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297220886928:android:6da223696d317887b86315",
+        "android_client_info": {
+          "package_name": "com.coursework.gcu.trafficscotland"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297220886928-7hl5hat4v7r8h12vbnd9m5i3llosjhj1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6YGGU3a1wGtVuCSzN6nh04sS4O7u1wJg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297220886928-7hl5hat4v7r8h12vbnd9m5i3llosjhj1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

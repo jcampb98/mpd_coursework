@@ -1,6 +1,6 @@
 package com.coursework.gcu.trafficscotland;
 
-import android.os.Parcel;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -8,132 +8,192 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
- * Name: Gavin Ross
- * Matric No: S1821951
+ * Name: Joshua Campbell
+ * Matric No: S2024472
  */
 
+//Some code was adapted from https://www.javatpoint.com/android-XMLPullParser-tutorial
 public class XmlPullParserHandler {
-    private static final String ns = null;
-    ArrayList<ParseClass> trafficDataList = new ArrayList<>();
-    private static RssDateConverter rssDate;
+    private String urlSource;
+    private ArrayList<ParseClass> rssItemList = new ArrayList<>();
+    private RssItem rssItemType;
 
-    public XmlPullParserHandler() {
-        rssDate = new RssDateConverter();
+    public XmlPullParserHandler(String urlSource, RssItem rssItemType, ParseComplete callback) {
+        this.urlSource = urlSource;
+        this.rssItemType = rssItemType;
+
+        new ProcessInBackground(callback).execute();
     }
 
-    public ArrayList<ParseClass> parse(String string) throws XmlPullParserException, IOException {
-        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-        XmlPullParser xpp = factory.newPullParser();
 
-        String parsedResult = "";
+    //Get stream of data from url
+    public InputStream getInputStream(URL url) {
+        try {
+            return url.openConnection().getInputStream();
 
-        xpp.setInput(new StringReader (string));
-        int eventType = xpp.getEventType();
-
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            if(eventType == XmlPullParser.START_DOCUMENT) {
-                System.out.println("Start document");
-            } else if(eventType == XmlPullParser.START_TAG) {
-                if (xpp.getName().equals("item")) {
-                    ParseClass trafficDataObj = new ParseClass();
-                    eventType = xpp.nextTag();
-                    if (xpp.getName().equals("title")) {
-                        eventType = xpp.next();
-                        trafficDataObj.setTitle(xpp.getText());
-                        Log.e("MyTag", xpp.getText());
-                        eventType = xpp.nextTag(); // </title> end tag
-                        eventType = xpp.nextTag(); // <description>
-                        Log.e("MyTag", xpp.getName());
-                    }
-                    if (xpp.getName().equals("description")) {
-                        eventType = xpp.next();
-                        trafficDataObj.setDescription(getDescription(xpp.getText()));// use the getDesc to extract
-                        // extract the long versions of start and end date from description
-                        // if it's the current incidents feed, theres no dates so it returns null
-                        String[] startAndEndDates = getDates(xpp.getText());
-                        if (startAndEndDates != null) {
-                            // convert each one to Calendar object and add to trafficDataObj
-                            trafficDataObj.setStartDate(rssDate.convertRssDateToObj(startAndEndDates[0]));
-                            trafficDataObj.setEndDate(rssDate.convertRssDateToObj(startAndEndDates[1]));
-                            // Convert long date to short version and add to trafficDataObj (String)
-                            trafficDataObj.setStartDateAsString(rssDate.convertLongDateToShort(startAndEndDates[0]));
-                            trafficDataObj.setEndDateAsString(rssDate.convertLongDateToShort(startAndEndDates[1]));
-                            // set the length of time the roadworks will last
-                            trafficDataObj.setRoadworksLength(rssDate.numberOfDays(trafficDataObj.getStartDate(), trafficDataObj.getEndDate()));
-                        }
-                        //Log.e("startDate", trafficDataObj.getStartDate());
-                        //Log.e("endDate", trafficDataObj.getEndDate());
-
-                        Log.e("MyTag", xpp.getText());
-                        eventType = xpp.nextTag(); // </title> end tag
-                        eventType = xpp.nextTag(); // <... next tag
-
-                    }
-                    if (xpp.getName().equals("point")) {
-                        eventType = xpp.next();
-                        trafficDataObj.setGeorss(xpp.getText());
-                        Log.e("MyTag", xpp.getText());
-                        eventType = xpp.nextTag(); // </title> end tag
-                        eventType = xpp.nextTag(); // <description>
-                    }
-                    eventType = xpp.nextTag(); // </title> end tag
-                    eventType = xpp.nextTag(); // <description>
-                    eventType = xpp.nextTag(); // </title> end tag
-                    eventType = xpp.nextTag(); // <description>
-                    if (xpp.getName().equals("pubDate")) {
-                        eventType = xpp.next();
-                        trafficDataObj.setPubDate(rssDate.convertLongDateToShort(xpp.getText()));
-                        Log.v("MyTag", xpp.getText());
-                        eventType = xpp.nextTag(); // </title> end tag
-                        eventType = xpp.nextTag(); // <description>
-                    }
-                    trafficDataList.add(trafficDataObj);
-                }
-            }
-            eventType = xpp.next();
-        }
-        System.out.println("End document");
-        return trafficDataList;
-    }
-
-    public String[] getDates(String date) throws StringIndexOutOfBoundsException {
-        if (date.indexOf("Start Date: ") == -1 || date.indexOf("End Date: ") == -1) {
+        } catch (IOException ex) {
             return null;
         }
-
-        else {
-            String startDateIndex = date.substring(date.indexOf("Start Date: "), date.indexOf(':'));
-            String data1 = date.substring(startDateIndex.length() + 2, date.indexOf('<'));
-            String leftOverString = date.substring(date.indexOf('>'));
-
-            String endDateIndex = leftOverString.substring(leftOverString.indexOf("End Date: "), date.indexOf(':'));
-            String data2 = "";
-            if (date.indexOf("<br />Delay") != -1) {
-                data2 = leftOverString.substring(endDateIndex.length() + 2, leftOverString.indexOf('<'));
-            } else {
-                data2 = leftOverString.substring(endDateIndex.length() + 2);
-            }
-            String[] results = new String[2];
-            results[0] = data1;
-            results[1] = data2;
-            return results;
-        }
-
     }
 
-    public String getDescription(String desc) {
-        int result = desc.lastIndexOf("<br />");
-        if (result == -1) {
-            return desc;
-        } else {
-            return desc.substring(result+6, desc.length());
+
+    public class ProcessInBackground extends AsyncTask<Integer, Void, Exception> {
+
+        Exception exception = null;
+        private ParseComplete completeListener;
+
+        //Initialise the listener to the listener passed in
+        public ProcessInBackground(ParseComplete listener) {
+            this.completeListener = listener;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.i("XMLHelper", "Loading RSS feed");
+        }
+
+        //this code was adapted from https://www.youtube.com/watch?v=i7aGM8uy2T0&ab_channel=MohamedShehab
+        @Override
+        protected Exception doInBackground(Integer... integers) {
+            //Variables to store properties of the current rssItem
+            String rssItemTitle = "";
+            String rssItemDescription = "";
+            float rssItemLat = 0;
+            float rssItemLng = 0;
+            Date rssItemDate = new Date();
+            Date rssItemStartDate = new Date();
+            Date rssItemEndDate = new Date();
+
+            try {
+                URL url = new URL(urlSource);
+                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                factory.setNamespaceAware(false);
+                XmlPullParser parser = factory.newPullParser();
+                parser.setInput(getInputStream(url), "UTF_8");
+
+                //Saves whether the reader is inside an <item> tag
+                boolean readingItem = false;
+                //Get the type of current event e.g. START_TAG or END_TAG ... etc
+                int eventType = parser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+
+                    //If eventType is start of a tag
+                    if (eventType == XmlPullParser.START_TAG) {
+
+                        //Check tag name to be an item
+                        if (parser.getName().equals("item")) {
+                            //Reading an item is now true
+                            readingItem = true;
+
+                        }
+
+                        //Check tag name to be title, and ensure readingItem true as also title tag outside item.
+                        if (parser.getName().equals("title") && readingItem) {
+                            rssItemTitle = parser.nextText();
+                        }
+
+                        //Check tag name to be title, and ensure readingItem true as also title tag outside item.
+                        if (parser.getName().equals("description") && readingItem) {
+
+                            //Description contains various pieces of valuable information.
+                            //From this, we can extract: Start date, end date, and the rest of the description.
+                            //Each piece of info is seperated by '<br />'.
+
+                            String[] datas = parser.nextText().split("<br />");
+
+                            //Date format holder
+                            DateFormat format = new SimpleDateFormat("EE, dd MMMM yyyy - HH:mm", Locale.ENGLISH);
+
+                            try {
+
+                                for (String data : datas) {
+                                    if (data.startsWith("Start Date: ")) {
+                                        String temp = data.replace("Start Date: ", "");
+                                        rssItemStartDate = format.parse(temp);
+                                    } else if (data.startsWith("End Date:")) {
+                                        String temp = data.replace("End Date: ", "");
+                                        rssItemEndDate = format.parse(temp);
+                                    } else {
+                                        rssItemDescription = data;
+                                    }
+
+                                }
+
+                            } catch (ParseException e) {
+                                Log.e("XMLHelper", "Could not parse date " + parser.nextText() + " from XML on line " + parser.getLineNumber());
+                            }
+                        }
+
+                        //Check tag name to be title, no need to ensure readingItem as there is no georss:point tags outside <item>
+                        if (parser.getName().equals("georss:point")) {
+                            String lngLatTemp = parser.nextText();
+                            String[] lngLatSplit = lngLatTemp.split(" ");
+
+                            rssItemLat = Float.parseFloat(lngLatSplit[0]);
+                            rssItemLng = Float.parseFloat(lngLatSplit[1]);
+                        }
+
+                        //Check tag name to be pubDate, no need to ensure readingItem as there is no pubDate tags outside <item>
+                        if (parser.getName().equals("pubDate")) {
+                            //Parse the date from a string to a java Date object.
+                            try {
+                                String string = parser.nextText();
+                                DateFormat format = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
+                                rssItemDate = format.parse(string);
+                            } catch (ParseException e) {
+                                Log.e("XMLHelper", "Could not parse date " + parser.nextText() + " from XML on line " + parser.getLineNumber());
+                                Log.e("error:", e.getMessage());
+                            }
+
+                            //As it is the last tag of an item, create the rssItem from the data collected
+                            ParseClass rssItem = new ParseClass(rssItemType, rssItemTitle, rssItemDescription, rssItemLat, rssItemLng, rssItemDate, rssItemStartDate, rssItemEndDate);
+                            //Add item to list
+                            rssItemList.add(rssItem);
+                        }
+
+                    } else if (eventType == XmlPullParser.END_TAG) {
+                        readingItem = false;
+                    }
+
+                    //Increment to next
+                    eventType = parser.next();
+                }
+
+
+            } catch (MalformedURLException ex) {
+                Log.e("XMLHelper", "Invalid URL");
+                exception = ex;
+            } catch (XmlPullParserException ex) {
+                Log.e("XMLHelper", "Could not parse XML");
+                exception = ex;
+            } catch (IOException ex) {
+                Log.e("XMLHelper", "IOException");
+                exception = ex;
+            }
+            return exception;
+        }
+
+        @Override
+        protected void onPostExecute(Exception e) {
+            super.onPostExecute(e);
+
+            //Loaded XML
+            Log.i("XMLHelper", "RSS feed loaded");
+
+            completeListener.onParseComplete(rssItemList);
+
         }
     }
 }

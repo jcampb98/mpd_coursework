@@ -1,137 +1,96 @@
 package com.coursework.gcu.trafficscotland;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import java.io.Serializable;
-import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Name: Joshua Campbell
  * Matric No: S2024472
  */
 
-public class ParseClass implements Parcelable {
+public class ParseClass {
+    private RssItem rssItem;
     private String title;
     private String description;
-    private String georss;
-    private String pubDate;
-    private Calendar startDate;
-    private Calendar endDate;
-    private String startDateAsString;
-    private String endDateAsString;
-    private long roadworksLength;
+    private float lat;
+    private float lng;
+    private Date pubDate;
+    private Date startDate;
+    private Date endDate;
 
-    protected ParseClass(Parcel in) {
-        title = in.readString();
-        description = in.readString();;
-        georss = in.readString();
-        pubDate = in.readString();
-        startDateAsString = in.readString();
-        endDateAsString = in.readString();
-        roadworksLength = in.readLong();
-    }
-
-    public static final Creator<ParseClass> CREATOR = new Creator<ParseClass>() {
-        @Override
-        public ParseClass createFromParcel(Parcel in) {
-            return new ParseClass(in);
-        }
-
-        @Override
-        public ParseClass[] newArray(int size) {
-            return new ParseClass[size];
-        }
-    };
-
-    public ParseClass() {
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.title);
-        dest.writeString(this.description);
-        dest.writeString(this.georss);
-        dest.writeString(this.pubDate);
-        dest.writeString(this.startDateAsString);
-        dest.writeString(this.endDateAsString);
-        dest.writeLong(this.roadworksLength);
-    }
-
-    public long getRoadworksLength() {
-        return roadworksLength;
-    }
-
-    public void setRoadworksLength(long roadworksLength) {
-        this.roadworksLength = roadworksLength;
-    }
-
-    public String getStartDateAsString() {
-        return startDateAsString;
-    }
-
-    public void setStartDateAsString(String startDateAsString) {
-        this.startDateAsString = startDateAsString;
-    }
-
-    public String getEndDateAsString() {
-        return endDateAsString;
-    }
-
-    public void setEndDateAsString(String endDateAsString) {
-        this.endDateAsString = endDateAsString;
+    //this code was adapted from https://www.javatpoint.com/android-XMLPullParser-tutorial
+    public ParseClass(RssItem rssItemType, String title, String description, float lat, float lng, Date pubDate, Date startDate, Date endDate) {
+        this.rssItem = rssItemType;
+        this.title = title;
+        this.description = description;
+        this.lat = lat;
+        this.lng = lng;
+        this.pubDate = pubDate;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getDescription() {
         return description;
+    }
+
+    public float getLat() {
+        return lat;
+    }
+
+    public float getLng() {
+        return lng;
+    }
+
+    public Date getPubDate() {
+        return pubDate;
+    }
+
+    public Date getStartDate(){
+        return startDate;
+    }
+
+    public Date getEndDate(){
+        return endDate;
+    }
+
+    public RssItem getRssItemType() {
+        return rssItem;
+    }
+
+    public void setRssItem(RssItem rssItemType) {
+        this.rssItem = rssItemType;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getGeorss() {
-        return georss;
+    public void setLat(float lat) {
+        this.lat = lat;
     }
 
-    public void setGeorss(String georss) {
-        this.georss = georss;
+    public void setLng(float lng) {
+        this.lng = lng;
     }
 
-    public String getPubDate() {
-        return pubDate;
-    }
-
-    public void setPubDate(String pubDate) {
+    public void setPubDate(Date pubDate) {
         this.pubDate = pubDate;
     }
 
-    public Calendar getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Calendar startDate) {
+    public void setStartDate(Date startDate){
         this.startDate = startDate;
+
     }
 
-    public Calendar getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Calendar endDate) {
+    public void setEndDate(Date endDate){
         this.endDate = endDate;
     }
 }

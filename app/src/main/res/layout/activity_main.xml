@@ -3,137 +3,97 @@
     Name: Joshua Campbell
     Matric No: S2024472
 -->
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraint_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/radio_butt_group"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <Button
-        android:id="@+id/get_feed_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:background="@color/colorPrimary"
-        android:text="@string/dateSelectBtn"
-        android:textColor="@color/textColor"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:elevation="8dp">
 
     <EditText
-        android:id="@+id/user_input"
-        android:layout_width="0dp"
-        android:layout_height="47dp"
-        android:layout_margin="8dp"
-        android:autofillHints=""
-        android:ems="10"
-        android:enabled="false"
-        android:hint="@string/enter_a_road_or_date"
-        android:inputType="text"
-        app:layout_constraintBottom_toTopOf="@+id/radio_butt_group_rdworks"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <RadioGroup
-        android:id="@+id/radio_butt_group"
-        android:layout_width="0dp"
+        android:id="@+id/searchBar"
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/user_input"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
+        android:hint="Search..."
+        android:elevation="8dp"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:lines="1"
+        android:background="@android:color/white"
+        android:imeOptions="actionDone" />
 
-        <RadioButton
-            android:id="@+id/date_radio_btn"
-            android:layout_width="wrap_content"
+
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
+    <RelativeLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="@android:color/white"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="55dp"
+        android:focusableInTouchMode="true"
+        android:clickable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/date" />
+            android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/road_radio_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/road" />
+            <TextView
+                android:id="@+id/listHeading"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:paddingLeft="12dp"
+                android:paddingTop="12dp"
+                android:text="Planned Roadworks"
+                android:textSize="18dp"/>
 
-        <RadioButton
-            android:id="@+id/none_radio_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/none" />
+            <TextView
+                android:id="@+id/listDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="12dp"
+                android:paddingBottom="5dp"
+                android:textSize="14dp"/>
 
-    </RadioGroup>
+            <ListView
+                android:id="@+id/listView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </ListView>
+            <!--android:layout_below="@id/listHeading"-->
 
-    <RadioGroup
-        android:id="@+id/radio_butt_group_rdworks"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/get_feed_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
+        </LinearLayout>
+    </RelativeLayout>
 
-        <RadioButton
-            android:id="@+id/current_roadworks_radio_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/current_roadworks" />
-
-        <RadioButton
-            android:id="@+id/planned_roadworks_radio_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/planned_roadworks" />
-
-        <RadioButton
-            android:id="@+id/current_incedents_radio_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/current_incidents" />
-    </RadioGroup>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/dateFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/recyclerview"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/recyclerview"
-        tools:visibility="invisible" />
+        android:tint="@android:color/white"
+        app:layout_anchor="@id/bottom_sheet"
+        app:layout_anchorGravity="end"
+        app:srcCompat="@drawable/ic_date_range_24dp"
+        android:layout_margin="12dp" />
 
-    <TextView
-        android:id="@+id/error_display"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/contentFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_results"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/recyclerview"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/recyclerview"
-        app:layout_constraintVertical_bias="0.798" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_gravity="top|end"
+        app:layout_anchor="@id/dateFab"
+        app:layout_anchorGravity="end"
+        app:srcCompat="@drawable/ic_layers_black_24dp"
+        app:useCompatPadding="true"
+        app:backgroundTint="@android:color/white" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
