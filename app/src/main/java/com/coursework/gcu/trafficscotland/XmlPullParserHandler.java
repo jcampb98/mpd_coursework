@@ -27,11 +27,11 @@ import java.util.Locale;
 public class XmlPullParserHandler {
     private String urlSource;
     private ArrayList<ParseClass> rssItemList = new ArrayList<>();
-    private RssItem rssItemType;
+    private RssItem rssItemData;
 
-    public XmlPullParserHandler(String urlSource, RssItem rssItemType, ParseComplete callback) {
+    public XmlPullParserHandler(String urlSource, RssItem rssItemData, ParseComplete callback) {
         this.urlSource = urlSource;
-        this.rssItemType = rssItemType;
+        this.rssItemData = rssItemData;
 
         new ProcessInBackground(callback).execute();
     }
@@ -46,7 +46,6 @@ public class XmlPullParserHandler {
         }
     }
 
-
     public class ProcessInBackground extends AsyncTask<Integer, Void, Exception> {
         Exception exception = null;
         private ParseComplete completeListener;
@@ -59,7 +58,7 @@ public class XmlPullParserHandler {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.i("XMLHelper", "Loading RSS feed");
+            Log.i("MyTag", "Loading RSS feed");
         }
 
         //this code was adapted from https://www.youtube.com/watch?v=i7aGM8uy2T0&ab_channel=MohamedShehab
@@ -78,45 +77,45 @@ public class XmlPullParserHandler {
                 URL url = new URL(urlSource);
                 XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
                 factory.setNamespaceAware(false);
-                XmlPullParser parser = factory.newPullParser();
-                parser.setInput(getInputStream(url), "UTF_8");
+                XmlPullParser xpp = factory.newPullParser();
+                xpp.setInput(getInputStream(url), "UTF_8");
 
                 //Saves whether the reader is inside an <item> tag
                 boolean readingItem = false;
                 //Get the type of current event e.g. START_TAG or END_TAG ... etc
-                int eventType = parser.getEventType();
+                int eventType = xpp.getEventType();
                 while (eventType != XmlPullParser.END_DOCUMENT) {
 
                     //If eventType is start of a tag
                     if (eventType == XmlPullParser.START_TAG) {
 
                         //Check tag name to be an item
-                        if (parser.getName().equals("item")) {
+                        if (xpp.getName().equals("item")) {
                             //Reading an item is now true
                             readingItem = true;
 
                         }
 
                         //Check tag name to be title, and ensure readingItem true as also title tag outside item.
-                        if (parser.getName().equals("title") && readingItem) {
-                            rssItemTitle = parser.nextText();
+                        if (xpp.getName().equals("title") && readingItem) {
+                            rssItemTitle = xpp.nextText();
                         }
 
                         //Check tag name to be title, and ensure readingItem true as also title tag outside item.
-                        if (parser.getName().equals("description") && readingItem) {
+                        if (xpp.getName().equals("description") && readingItem) {
 
                             //Description contains various pieces of valuable information.
                             //From this, we can extract: Start date, end date, and the rest of the description.
                             //Each piece of info is seperated by '<br />'.
 
-                            String[] datas = parser.nextText().split("<br />");
+                            String[] dateData = xpp.nextText().split("<br />");
 
                             //Date format holder
                             DateFormat format = new SimpleDateFormat("EE, dd MMMM yyyy - HH:mm", Locale.ENGLISH);
 
                             try {
 
-                                for (String data : datas) {
+                                for (String data : dateData) {
                                     if (data.startsWith("Start Date: ")) {
                                         String temp = data.replace("Start Date: ", "");
                                         rssItemStartDate = format.parse(temp);
@@ -130,13 +129,13 @@ public class XmlPullParserHandler {
                                 }
 
                             } catch (ParseException e) {
-                                Log.e("XMLHelper", "Could not parse date " + parser.nextText() + " from XML on line " + parser.getLineNumber());
+                                Log.e("MyTag", "Could not parse date " + xpp.nextText() + " from XML on line " + xpp.getLineNumber());
                             }
                         }
 
                         //Check tag name to be title, no need to ensure readingItem as there is no georss:point tags outside <item>
-                        if (parser.getName().equals("georss:point")) {
-                            String lngLatTemp = parser.nextText();
+                        if (xpp.getName().equals("georss:point")) {
+                            String lngLatTemp = xpp.nextText();
                             String[] lngLatSplit = lngLatTemp.split(" ");
 
                             rssItemLat = Float.parseFloat(lngLatSplit[0]);
@@ -144,21 +143,21 @@ public class XmlPullParserHandler {
                         }
 
                         //Check tag name to be pubDate, no need to ensure readingItem as there is no pubDate tags outside <item>
-                        if (parser.getName().equals("pubDate")) {
+                        if (xpp.getName().equals("pubDate")) {
                             //Parse the date from a string to a java Date object.
                             try {
-                                String string = parser.nextText();
+                                String string = xpp.nextText();
                                 DateFormat format = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
                                 rssItemDate = format.parse(string);
                             } catch (ParseException e) {
-                                Log.e("XMLHelper", "Could not parse date " + parser.nextText() + " from XML on line " + parser.getLineNumber());
+                                Log.e("MyTag", "Could not parse date " + xpp.nextText() + " from XML on line " + xpp.getLineNumber());
                                 Log.e("error:", e.getMessage());
                             }
 
-                            //As it is the last tag of an item, create the rssItem from the data collected
-                            ParseClass rssItem = new ParseClass(rssItemType, rssItemTitle, rssItemDescription, rssItemLat, rssItemLng, rssItemDate, rssItemStartDate, rssItemEndDate);
+                            //As it is the last tag of an item, create the parseRss from the data collected
+                            ParseClass parseRss = new ParseClass(rssItemData, rssItemTitle, rssItemDescription, rssItemLat, rssItemLng, rssItemDate, rssItemStartDate, rssItemEndDate);
                             //Add item to list
-                            rssItemList.add(rssItem);
+                            rssItemList.add(parseRss);
                         }
 
                     } else if (eventType == XmlPullParser.END_TAG) {
@@ -166,18 +165,18 @@ public class XmlPullParserHandler {
                     }
 
                     //Increment to next
-                    eventType = parser.next();
+                    eventType = xpp.next();
                 }
 
 
             } catch (MalformedURLException ex) {
-                Log.e("XMLHelper", "Invalid URL");
+                Log.e("MyTag", "Invalid URL");
                 exception = ex;
             } catch (XmlPullParserException ex) {
-                Log.e("XMLHelper", "Could not parse XML");
+                Log.e("MyTag", "Could not parse XML");
                 exception = ex;
             } catch (IOException ex) {
-                Log.e("XMLHelper", "IOException");
+                Log.e("MyTag", "IOException");
                 exception = ex;
             }
             return exception;
@@ -188,7 +187,7 @@ public class XmlPullParserHandler {
             super.onPostExecute(e);
 
             //Loaded XML
-            Log.i("XMLHelper", "RSS feed loaded");
+            Log.i("MyTag", "RSS feed loaded");
 
             completeListener.onParseComplete(rssItemList);
 

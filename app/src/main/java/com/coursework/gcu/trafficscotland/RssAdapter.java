@@ -29,7 +29,7 @@ public class RssAdapter extends ArrayAdapter<ParseClass> {
     @NonNull
     @Override
     public View getView(int pos, View convertView, ViewGroup parent){
-        ParseClass item = getItem(pos);
+        ParseClass parseItem = getItem(pos);
 
         if (convertView == null)
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.datalist_item, parent, false);
@@ -39,13 +39,13 @@ public class RssAdapter extends ArrayAdapter<ParseClass> {
         TextView itemStartDate = convertView.findViewById(R.id.itemStartDate);
         TextView itemEndDate = convertView.findViewById(R.id.itemEndDate);
 
-        itemTitle.setText(item.getTitle());
-        itemDescription.setText(item.getDescription());
+        itemTitle.setText(parseItem.getTitle());
+        itemDescription.setText(parseItem.getDescription());
 
         DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 
-        itemStartDate.setText("Start Date: " + format.format(item.getStartDate()));
-        itemEndDate.setText("End Date: " + format.format(item.getEndDate()));
+        itemStartDate.setText("Start Date: " + format.format(parseItem.getStartDate()));
+        itemEndDate.setText("End Date: " + format.format(parseItem.getEndDate()));
 
         return convertView;
     }

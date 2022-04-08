@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     filterString = searchBar.getText().toString();
                     if(searchBar.getText().toString().isEmpty())
                         filterString = null;
-                    filterData();
+                    filterRSSData();
                 }
                 return false;
             }
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
                 filterDate = myCalendar.getTime();
-                filterData();
+                filterRSSData();
                 DateFormat format = new SimpleDateFormat("EEE, d MMM yyyy", Locale.ENGLISH);
                 listDate.setText(format.format(myCalendar.getTime()));
             }
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v){
                 BottomBarModel bsm = new BottomBarModel();
-                bsm.show(getSupportFragmentManager(), "bottomSheetModal ");
+                bsm.show(getSupportFragmentManager(), "bottomBarModal ");
             }
         });
 
@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ArrayList<ParseClass> oneItem = new ArrayList<>();
-                oneItem.add(getActiveItems().get(position));
+                oneItem.add(getParseItems().get(position));
                 updateMap(activeItemType, oneItem, map);
                 mapFocused = true;
             }
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         new XmlPullParserHandler(currentIncidentsSource, RssItem.CURRENT_INCIDENTS, new ParseComplete() {
             @Override
             public void onParseComplete(ArrayList<ParseClass> items) {
-                Log.i("XMLHelper", "Loaded current incidents");
+                Log.i("MyTag", "Loaded current incidents");
                 currentIncidentList = items;
             }
         });
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         new XmlPullParserHandler(roadworksSource, RssItem.ROADWORKS, new ParseComplete() {
             @Override
             public void onParseComplete(ArrayList<ParseClass> items) {
-                Log.i("XMLHelper", "Loaded roadworks");
+                Log.i("MyTag", "Loaded roadworks");
                 roadworksList = items;
                 //The default active type of items to display, so populate these on the bottom sheet as the onCreate runs
                 updateMap(RssItem.CURRENT_INCIDENTS, items, map);
@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         new XmlPullParserHandler(plannedRoadworksSource, RssItem.PLANNED_ROADWORKS, new ParseComplete() {
             @Override
             public void onParseComplete(ArrayList<ParseClass> items) {
-                Log.i("XMLHelper", "Loaded planned roadworks");
+                Log.i("MyTag", "Loaded planned roadworks");
                 plannedRoadworksList = items;
             }
         });
@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onMapClick(LatLng latLng) {
                 if(mapFocused == true){
-                    updateMap(activeItemType, getActiveItems(), map);
+                    updateMap(activeItemType, getParseItems(), map);
                     mapFocused = false;
                 }
             }
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //this code was adapted https://stackoverflow.com/questions/5070830/populating-a-listview-using-an-arraylist
-    public ArrayList<ParseClass> getActiveItems(){
+    public ArrayList<ParseClass> getParseItems(){
         ArrayList<ParseClass> list = new ArrayList<ParseClass>();
         switch(activeItemType){
             case CURRENT_INCIDENTS:
@@ -301,14 +301,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    //RSS type selected, on click of item in bottomsheetmodal
+    //RSS type selected, on click of item in bottombarmodal
     @Override
-    public void onClicked(RssItem rssItemType) {
-        activeItemType = rssItemType;
-        updateMap(rssItemType, getActiveItems(), map);
+    public void onClicked(RssItem rssItemData) {
+        activeItemType = rssItemData;
+        updateMap(rssItemData, getParseItems(), map);
 
         listDate.setText("");
-        switch(rssItemType){
+        switch(rssItemData){
             case PLANNED_ROADWORKS:
                 listHeading.setText("Planned Roadworks");
                 break;
@@ -324,12 +324,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Filter the data on the map, with the stored global variables of the search and date conditions
     //this code was adapted from https://stackoverflow.com/questions/32529819/android-arraylist-filtering
-    public void filterData(){
+    public void filterRSSData(){
         //Make new temp list
-        ArrayList<ParseClass> filteredList = new ArrayList<ParseClass>();
+        ArrayList<ParseClass> filteredDataList = new ArrayList<ParseClass>();
 
         //Loop over every item in the active list/map and add it to the local list if it meets condition
-        for(ParseClass loopItem : getActiveItems()){
+        for(ParseClass loopItem : getParseItems()){
             //If a search condition has been entered and matches loop item, or if no search condition is entered:
             if(loopItem
                     .getTitle()
@@ -345,17 +345,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         loopItem.getEndDate().after(filterDate))
                 {
                     //Add the item
-                    filteredList.add(loopItem);
+                    filteredDataList.add(loopItem);
                 }else if(filterDate == null){
                     //Also add the item
-                    filteredList.add(loopItem);
+                    filteredDataList.add(loopItem);
                 }
 
             }
         }
 
         //Update the map with the new list
-        updateMap(activeItemType, filteredList, map);
+        updateMap(activeItemType, filteredDataList, map);
     }
 
 
