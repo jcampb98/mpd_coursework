@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Name: Joshua Campbell
+    Matric No: S2024472
+-->
 <resources>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyB6YGGU3a1wGtVuCSzN6nh04sS4O7u1wJg</string>
 </resources>
