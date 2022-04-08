@@ -81,6 +81,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:tint="@android:color/white"
+        android:backgroundTint="@color/colorPrimary"
         app:layout_anchor="@id/bottom_sheet"
         app:layout_anchorGravity="end"
         app:srcCompat="@drawable/ic_date_range_24dp"
@@ -91,9 +92,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
+        android:tint="@android:color/white"
+        android:backgroundTint="@color/colorPrimaryDark"
         app:layout_anchor="@id/dateFab"
         app:layout_anchorGravity="end"
         app:srcCompat="@drawable/ic_layers_black_24dp"
-        app:useCompatPadding="true"
-        app:backgroundTint="@android:color/white" />
+        app:useCompatPadding="true"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

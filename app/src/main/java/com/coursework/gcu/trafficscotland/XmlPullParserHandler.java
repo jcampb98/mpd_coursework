@@ -36,7 +36,6 @@ public class XmlPullParserHandler {
         new ProcessInBackground(callback).execute();
     }
 
-
     //Get stream of data from url
     public InputStream getInputStream(URL url) {
         try {
@@ -49,7 +48,6 @@ public class XmlPullParserHandler {
 
 
     public class ProcessInBackground extends AsyncTask<Integer, Void, Exception> {
-
         Exception exception = null;
         private ParseComplete completeListener;
 
